@@ -1,2 +1,2 @@
 # wordle-react
-Wordele game made in react
+Wordle game made in react
