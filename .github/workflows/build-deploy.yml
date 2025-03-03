@@ -23,7 +23,7 @@ jobs:
           echo "Installing dependencies and building..."
           npm ci
           npm install -g typescript  # Asegurar que tsc esté disponible
-          npm run build
+          VITE_BASE="/wordle-react/" npm run build
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
