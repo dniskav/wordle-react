@@ -24,3 +24,11 @@ jobs:
           npm ci
           npm install -g typescript  # Asegurar que tsc esté disponible
           npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages # Asegura que el despliegue vaya a `gh-pages`
+          folder: dist # Carpeta donde se generó el build
+          clean: true # Borra archivos viejos antes de subir nuevos
+          token: ${{ secrets.GITHUB_TOKEN }} # Usa el token de GitHub
