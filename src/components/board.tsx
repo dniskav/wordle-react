@@ -8,15 +8,26 @@ interface props {
   length: number;
 }
 
-export default function Board({ matchWord, guessWordsList, children, length }: props) {
-  const splitWord = (word: string) => (word ? word.split('') : [])
-  const rows = new Array(length).fill(null).map((e, i) => i)
+export default function Board({
+  matchWord,
+  guessWordsList,
+  children,
+  length,
+}: props) {
+  const splitWord = (word: string) => (word ? word.split('') : []);
+  const rows = new Array(length).fill(null).map((_e, i) => i);
 
   return (
     <>
       {matchWord}
       <div className="letters-container">
-        {rows.map((row: number) => <WordRow word={splitWord(guessWordsList[row])} rowIndex={row} key={row}/>)}
+        {rows.map((row: number) => (
+          <WordRow
+            word={splitWord(guessWordsList[row])}
+            rowIndex={row}
+            key={row}
+          />
+        ))}
         {children}
       </div>
     </>
