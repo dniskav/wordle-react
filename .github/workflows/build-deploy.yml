@@ -22,7 +22,8 @@ jobs:
       - name: Install Dependencies & Build
         run: |
           echo "Installing dependencies and building..."
-          npm ci  # Usa `ci` en lugar de `i` para asegurar dependencias consistentes
+          npm ci
+          npm install -g typescript  # Asegurar que tsc esté disponible
           npm run build
 
           - name: Deploy to GitHub Pages
