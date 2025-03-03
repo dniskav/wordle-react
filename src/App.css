@@ -84,7 +84,7 @@ body {
 .restart-container {
   display: flex;
   justify-content: center;
-  align-self: start;
+  align-self: center;
 }
 
 .restart-button {

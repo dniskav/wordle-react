@@ -1,80 +1,92 @@
-import { useEffect, useRef, useState, useCallback } from "react";
-import Board from "./components/board";
-import useGetRandomWord from "./hooks/useGetRandomWord";
-import { checkWord } from "./utils/checkwords";
-import useGuessWordListener from "./hooks/useGuessWordListener";
-import { TestLetter, TestWord } from "./types/common.types";
-import { useGameContext } from "./hooks/useGameContext";
+import { useEffect, useRef, useState } from 'react';
+import Board from './components/board';
+import useGetRandomWord from './hooks/useGetRandomWord';
+import { checkWord } from './utils/checkwords';
+import useGuessWordListener from './hooks/useGuessWordListener';
+import { TestLetter, TestWord } from './types/common.types';
+import { useGameContext } from './hooks/useGameContext';
 import confetti from "canvas-confetti";
-import "./App.css";
+import './App.css';
+
+// [x] craate board component
+// [x] load words from file and get one random word
+// [x] chose a word and save it in state
+// [x] listen the key press and draw the letter on the corresponding box
+// [x] game logic to check if the letter is in the word and if it in the position or not
+// [x] add logic to add a new row if the word not match
+// [x] use the match position to color green if it is correct position
+// [x] use the match position to color yellow if it is not correct position
+// [x] check if the word matches and show the win message
+// [] check if the tries is over and show the lose message
+// [x] enable the restart button
+// [] save the game state in local storage
 
 function App() {
   const { newWord, fetchNewWord } = useGetRandomWord();
-  const { guessWord, setGuessWord, setEndGame } = useGuessWordListener(6);
-  const { testedWordsList, setTestedWordsList } = useGameContext();
-  
   const [isWinner, setIsWinner] = useState<boolean>(false);
-  const [guessWordsList, setGuessWordsList] = useState<string[]>([]);
-  
-  const newWordRef = useRef<string>(newWord);
-  const tries = 6;
   const wordLength = 6;
+  const tries = 6;
+  const { guessWord, setGuessWord, setEndGame } = useGuessWordListener(wordLength);
+  const [guessWordsList, setGuessWordsList] = useState<string[]>([]);
+  const { testedWordsList, setTestedWordsList } = useGameContext();
 
-  // ✅ 1️⃣ Memoización de la lógica de reset
-  const resetGame = useCallback(() => {
-    setGuessWord("");
+  const newWordRef = useRef<string>(newWord);
+
+  const resetGame = () => {
+    setGuessWord('');
     fetchNewWord();
     setGuessWordsList([]);
     setTestedWordsList([]);
-    setEndGame(false);
-    setIsWinner(false);
-  }, [fetchNewWord, setGuessWord, setGuessWordsList, setTestedWordsList, setEndGame]);
+    setEndGame(false)
+    setIsWinner(false)
+  };
 
-  // ✅ 2️⃣ Sincronizar `guessWordsList` cada vez que `guessWord` cambia
   useEffect(() => {
-    if (guessWord) {
-      setGuessWordsList((prevList) => [
-        ...prevList.slice(0, -1),
+    setGuessWordsList((guessWordsList) => {
+      const tempList = [
+        ...guessWordsList.slice(0, -1),
         guessWord.toLocaleUpperCase(),
-      ]);
-    }
+      ];
+      return tempList;
+    });
   }, [guessWord]);
 
-  // ✅ 3️⃣ Mantener `newWordRef` actualizado cuando `newWord` cambie
   useEffect(() => {
     newWordRef.current = newWord;
   }, [newWord]);
 
-  // ✅ 4️⃣ Manejar victoria y fin del juego
   useEffect(() => {
-    if (isWinner) {
+    if(isWinner){
       confetti({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 },
         disableForReducedMotion: true,
       });
-      setEndGame(true);
-    } else if (testedWordsList.length === tries) {
+      setEndGame(isWinner);
+    } else if(testedWordsList.length === tries){
       setEndGame(true);
       setIsWinner(false);
     }
-  }, [isWinner, testedWordsList, tries, setEndGame]);
+  },[isWinner, setEndGame, testedWordsList, tries])
 
-  // ✅ 5️⃣ Función para verificar si todas las letras están en la posición correcta
-  const checkWin = useCallback((testWord: TestWord) => testWord.every((letter) => letter.isInPosition), []);
-  
-  // ✅ 6️⃣ Evaluar palabra ingresada
   useEffect(() => {
     if (guessWord.length === wordLength && newWordRef.current) {
       const testWord: TestLetter[] = checkWord(guessWord, newWordRef.current);
-
-      setTestedWordsList((prevList) => [...prevList, testWord]);
-      setGuessWordsList((prevList) => [...prevList, ""]);
-      setGuessWord("");
+      setTestedWordsList((currentList: TestWord[]) => [...currentList, testWord]);
+      setGuessWordsList((wordsList) => [...wordsList, '']);
+      setGuessWord('');
       setIsWinner(checkWin(testWord));
     }
-  }, [guessWord, wordLength, setGuessWord, setTestedWordsList, checkWin]);
+  }, [guessWord, setGuessWord, testedWordsList, setTestedWordsList]);
+
+  const checkWin = (testWord: TestWord) => {
+    const isWinnert = testWord.every((letter: TestLetter) => {
+      return letter.isInPosition;
+    })
+
+    return isWinnert;
+  }
 
   return (
     <>
@@ -83,16 +95,19 @@ function App() {
       <Board matchWord={newWord} guessWordsList={guessWordsList} length={6}>
         <div className="message-container">
           <p className="message-text">
-            {isWinner && "We have a winner!"}
-            {!isWinner && testedWordsList.length === tries && "You lose!"}
+            {isWinner && 'We have a winner!'}
+            {!isWinner && testedWordsList.length === tries && 'You lose!'}
           </p>
         </div>
-        <div className="restart-container">
+        <div className="restar-container">
           <button className="restart-button" onClick={resetGame}>
             Restart
           </button>
         </div>
       </Board>
+      {/* <div className="debuger">
+        <pre>{JSON.stringify(testedWordsList, null, 2)}</pre>
+      </div> */}
     </>
   );
 }
