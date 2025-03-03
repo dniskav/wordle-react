@@ -3,12 +3,11 @@ name: Wordle deploy
 on:
   push:
     branches: ['master']
-
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest # Corrección del error tipográfico
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
@@ -17,10 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Usa la versión de Node adecuada para tu proyecto
-
-      - name: Install TypeScript
-        run: npm install -g typescript
+          node-version: '20'
 
       - name: Install Dependencies & Build
         run: |
@@ -28,11 +24,3 @@ jobs:
           npm ci
           npm install -g typescript  # Asegurar que tsc esté disponible
           npm run build
-
-          - name: Deploy to GitHub Pages
-          uses: JamesIves/github-pages-deploy-action@v4
-          with:
-            branch: gh-pages
-            folder: dist
-            token: ${{ secrets.GITHUB_TOKEN }}
-            clean: true
